@@ -17,6 +17,9 @@ module.exports = {
             logger.debug("[Router] access to /");
             logger.debug("[Router] %O",req.query);
             res.status(201).send("Test");
+        app.use(function(req, res){
+            logger.debug("[Router] 404 : access to %s",req.url);
+            res.send(404);
         });
 
     }
