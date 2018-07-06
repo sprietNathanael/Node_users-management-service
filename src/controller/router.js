@@ -10,9 +10,10 @@ module.exports = {
      *
      * @param      {express}  app     The HTTP server
      * @param      {Winston}  logger  The logger
+     * @param      {Controller} controller the controller
      */
-    initilizeRoutes: function (app, logger) {
-        logger.info("[Router] initializing");
+    initilizeRoutes: function (app, controller, logger) {
+        logger.info("[Router] Starting");
 
         app.use(bodyParser.json()); // for parsing application/json
 

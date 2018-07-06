@@ -1,3 +1,5 @@
+"use strict";
+
 const {
     readFileSync
 } = require("fs");
@@ -21,6 +23,7 @@ const {
 
 const express = require('express');
 const router = require("./controller/router");
+const Controller = require("./controller/controller");
 
 const myFormat = printf(info => {
     return `${info.timestamp} [${info.label}] ${info.level}: ${info.message}`;
@@ -54,34 +57,32 @@ logger.info("Version : %s", readFileSync("../version", {
     encoding: "utf8"
 }));
 logger.info("=========================================");
-logger.info("[System] System is starting");
+logger.info("[System] Starting");
 
 var Sequelize = require("sequelize");
 
 var database;
-var Model = {};
-initDatabase();
+var model = {};
+
+// Initialisez database
+database = new Sequelize('null', 'null', 'null', {
+    dialect: 'sqlite',
+    storage: 'users.sqlite',
+    logging: false
+});
+
+model.User = database.import("./model/users.js");
+
 database.sync().then(() => {
     logger.info("[Database] Database is ready");
 
-    var app = express();
-    router.initilizeRoutes(app, logger);
+    let controller = new Controller(model, logger);
 
-    var server = require('http').Server(app);
+    let app = express();
+    router.initilizeRoutes(app, controller ,logger);
+
+    let server = require('http').Server(app);
     server.listen(5801);
     logger.info("[System] Server listening on port 5801");
+    logger.info("[System] Ready");
 });
-
-/**
- * Initializes database
- * @method initDatabase
- */
-function initDatabase() {
-    database = new Sequelize('null', 'null', 'null', {
-        dialect: 'sqlite',
-        storage: 'users.sqlite',
-        logging: false
-    });
-
-    Model.User = database.import("./model/users.js");
-}
