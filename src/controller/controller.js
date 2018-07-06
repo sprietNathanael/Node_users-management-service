@@ -1,16 +1,22 @@
-/**
- * The main controller class
- *
- * @class      Controller
- * @param      {Model}          model          The database model
- * @param      {winston}        logger         The log manager
- */
+const winston = require("winston");
+const sequelize = require("sequelize");
+
 class Controller {
-    constructor(model, logger) {
+
+    /**
+     *
+     * @param {sequelize.Model} userModel
+     * @param {winston.Logger} logger
+     */
+    constructor(userModel, logger) {
         logger.info("[Controller] Starting");
-        this.model = model;
+        this.userModel = userModel;
         this.logger = logger;
         logger.info("[Controller] Ready");
+    }
+
+    createUser(){
+        this.logger.info("[Controller] Creating User");
     }
 }
 

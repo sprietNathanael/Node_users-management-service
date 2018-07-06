@@ -76,7 +76,7 @@ model.User = database.import("./model/users.js");
 database.sync().then(() => {
     logger.info("[Database] Database is ready");
 
-    let controller = new Controller(model, logger);
+    let controller = new Controller(model.User, logger);
 
     let app = express();
     router.initilizeRoutes(app, controller ,logger);

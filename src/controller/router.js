@@ -1,5 +1,8 @@
-var bodyParser = require('body-parser');
-var multer = require('multer'); // v1.0.5
+const winston = require("winston");
+const express = require("express");
+const controller = require("./controller");
+const bodyParser = require('body-parser');
+const multer = require('multer'); // v1.0.5
 var upload = multer(); // for parsing multipart/form-data
 
 
@@ -8,15 +11,14 @@ module.exports = {
     /**
      * Initializes the layout and all the routes
      *
-     * @param      {express}  app     The HTTP server
-     * @param      {Winston}  logger  The logger
-     * @param      {Controller} controller the controller
+     * @param      {express.Express}  app     The HTTP server
+     * @param      {winston.Logger}  logger  The logger
+     * @param      {controller} controller the controller
      */
     initilizeRoutes: function (app, controller, logger) {
         logger.info("[Router] Starting");
 
         app.use(bodyParser.json()); // for parsing application/json
-
         /**
          * Get the list of users
          */
