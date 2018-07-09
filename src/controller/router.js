@@ -24,7 +24,7 @@ module.exports = {
          */
         app.get("/users", (req, res) => {
             logger.debug("[Router] GET on /users");
-            res.status(200).send([]);
+            controller.getUsers(res);
         });
 
         /**

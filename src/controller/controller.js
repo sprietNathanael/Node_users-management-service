@@ -16,6 +16,17 @@ class Controller {
     }
 
     /**
+     * Get all users
+     * @param {Response} res
+     */
+    getUsers(res){
+        this.userModel.findAll().then(users => {
+            this.logger.info("[Controller] Get all users");
+            res.status(200).send(users);
+        });
+    }
+
+    /**
      * Creates a new User
      * @param {String} lastname
      * @param {String} firstname
