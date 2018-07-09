@@ -44,8 +44,10 @@ module.exports = {
          * Create a user
          */
         app.post("/users", upload.array(), (req, res) => {
-            logger.debug("[Router] POST on /users with body %O",req.body);
-            res.status(201).send({});
+            user = req.body;
+            logger.debug("[Router] POST on /users with body %O",user);
+            controller.createUser(user.lastname, user.firstname, user.username, user.password, res);
+            // res.status(200).send([]);
         });
 
         /**
