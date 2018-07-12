@@ -32,11 +32,11 @@ module.exports = {
          */
         app.get("/users/:userId", (req, res) => {
             logger.debug("[Router] GET on /users/%s",req.params.userId);
-            if(req.params.userId !== ""){
-                res.status(200).send({});
+            if(!isNaN(parseInt(req.params.userId))){
+                controller.getUserById(parseInt(req.params.userId), res);
             }
             else{
-                res.send(404);
+                res.send(400);
             }
         });
 

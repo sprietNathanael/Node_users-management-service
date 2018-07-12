@@ -27,6 +27,22 @@ class Controller {
     }
 
     /**
+     * Get one user by id
+     * @param {} id
+     * @param {Response} res
+     */
+    getUserById(id, res){
+        this.logger.info("[Controller] Get user by id %d",id);
+        this.userModel.findById(id).then(user => {
+            if(user !== null){
+                res.status(200).send(user);
+            } else {
+                res.send(404);
+            }
+        });
+    }
+
+    /**
      * Creates a new User
      * @param {String} lastname
      * @param {String} firstname
