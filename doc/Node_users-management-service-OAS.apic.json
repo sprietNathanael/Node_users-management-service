@@ -4,7 +4,7 @@
         "title": "Node_users-management-service",
         "version": "v0.0.1-dev"
     },
-    "host": "http://localhost:5801",
+    "host": "localhost:5801",
     "schemes": [
         "http"
     ],
@@ -89,28 +89,14 @@
                         },
                         "description": "Returns response 201 with the details of the newly created User"
                     },
-                    "401": {
-                        "$ref": "#/responses/trait:TokenConnected:401"
-                    },
-                    "403": {
-                        "$ref": "#/responses/trait:TokenConnected:403"
+                    "400": {
+                        "schema": {
+                            "type": "object"
+                        },
+                        "description": "Bad Request"
                     }
                 },
                 "parameters": [
-                    {
-                        "name": "id",
-                        "in": "query",
-                        "description": "",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "token",
-                        "in": "query",
-                        "description": "",
-                        "required": true,
-                        "type": "string"
-                    },
                     {
                         "name": "lastname",
                         "in": "formData",
@@ -157,30 +143,9 @@
                             }
                         },
                         "description": "Returns 200 with list/array of Users"
-                    },
-                    "401": {
-                        "$ref": "#/responses/trait:TokenConnected:401"
-                    },
-                    "403": {
-                        "$ref": "#/responses/trait:TokenConnected:403"
                     }
                 },
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "query",
-                        "description": "",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "token",
-                        "in": "query",
-                        "description": "",
-                        "required": true,
-                        "type": "string"
-                    }
-                ]
+                "parameters": []
             }
         },
         "/users/{userId}": {
@@ -198,28 +163,14 @@
                         },
                         "description": "Returns 200 with the detail of User for the specified userId"
                     },
-                    "401": {
-                        "$ref": "#/responses/trait:TokenConnected:401"
-                    },
-                    "403": {
-                        "$ref": "#/responses/trait:TokenConnected:403"
+                    "404": {
+                        "schema": {
+                            "type": "object"
+                        },
+                        "description": "Not found"
                     }
                 },
                 "parameters": [
-                    {
-                        "name": "id",
-                        "in": "query",
-                        "description": "",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "token",
-                        "in": "query",
-                        "description": "",
-                        "required": true,
-                        "type": "string"
-                    },
                     {
                         "name": "userId",
                         "in": "path",
@@ -243,28 +194,20 @@
                         },
                         "description": "Returns 200 with the detail of updated User"
                     },
-                    "401": {
-                        "$ref": "#/responses/trait:TokenConnected:401"
+                    "400": {
+                        "schema": {
+                            "type": "object"
+                        },
+                        "description": "Bad Request"
                     },
-                    "403": {
-                        "$ref": "#/responses/trait:TokenConnected:403"
+                    "404": {
+                        "schema": {
+                            "type": "object"
+                        },
+                        "description": "Not found"
                     }
                 },
                 "parameters": [
-                    {
-                        "name": "id",
-                        "in": "query",
-                        "description": "",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "token",
-                        "in": "query",
-                        "description": "",
-                        "required": true,
-                        "type": "string"
-                    },
                     {
                         "name": "userId",
                         "in": "path",
@@ -323,28 +266,14 @@
                         },
                         "description": "Returns 200"
                     },
-                    "401": {
-                        "$ref": "#/responses/trait:TokenConnected:401"
-                    },
-                    "403": {
-                        "$ref": "#/responses/trait:TokenConnected:403"
+                    "404": {
+                        "schema": {
+                            "type": "object"
+                        },
+                        "description": "Not found"
                     }
                 },
                 "parameters": [
-                    {
-                        "name": "id",
-                        "in": "query",
-                        "description": "",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "token",
-                        "in": "query",
-                        "description": "",
-                        "required": true,
-                        "type": "string"
-                    },
                     {
                         "name": "userId",
                         "in": "path",
@@ -358,102 +287,6 @@
                         "schema": {
                             "type": "object"
                         }
-                    }
-                ]
-            }
-        },
-        "/users/login": {
-            "get": {
-                "tags": [],
-                "summary": "Login",
-                "description": "",
-                "consumes": [],
-                "produces": [],
-                "schemes": [],
-                "responses": {
-                    "200": {
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "user": {
-                                    "$ref": "#/definitions/User"
-                                }
-                            },
-                            "required": [
-                                "user"
-                            ]
-                        },
-                        "description": ""
-                    },
-                    "401": {
-                        "schema": {
-                            "type": "object"
-                        },
-                        "description": "Not authentified"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "usrname",
-                        "in": "query",
-                        "description": "",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "password",
-                        "in": "query",
-                        "description": "",
-                        "required": true,
-                        "type": "string"
-                    }
-                ]
-            }
-        },
-        "/users/tryToken": {
-            "get": {
-                "tags": [],
-                "summary": "Try Token",
-                "description": "",
-                "consumes": [],
-                "produces": [],
-                "schemes": [],
-                "responses": {
-                    "200": {
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "user": {
-                                    "$ref": "#/definitions/User"
-                                }
-                            },
-                            "required": [
-                                "user"
-                            ]
-                        },
-                        "description": ""
-                    },
-                    "401": {
-                        "schema": {
-                            "type": "object"
-                        },
-                        "description": "Not authorized"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "token",
-                        "in": "query",
-                        "description": "",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "id",
-                        "in": "query",
-                        "description": "",
-                        "required": true,
-                        "type": "string"
                     }
                 ]
             }
