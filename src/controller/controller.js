@@ -52,8 +52,9 @@ class Controller {
      */
     createUser(lastname, firstname, username, password, res){
         this.logger.info("[Controller] Creating User");
+        let userCheck = this.checkUser(lastname, firstname, username, password);
 
-        if(this.checkUser(lastname, firstname, username, password)){
+        if(userCheck === ""){
             this.userModel.create({
                 lastname: lastname,
                 firstname: firstname,
@@ -61,12 +62,16 @@ class Controller {
                 password: password
             }).then((user) => {
                 this.logger.info("[Controller] Ok, sending user !");
-                res.status(201).send(user)
+                res.status(201).send(user);
+            }).catch( ()=>{
+                this.logger.info("[Controller] Bad Request !");
+                res.status(400).send("Username already exists");
+
             });
 
         } else {
             this.logger.info("[Controller] Bad Request !");
-            res.status(400).send({});
+            res.status(400).send("Wrong "+userCheck);
         }
     }
 
@@ -78,17 +83,26 @@ class Controller {
      * @param {String} password
      */
     checkUser(lastname, firstname, username, password){
-        if((typeof username === "string" && username.match(/^[a-zA-Z0-9-_]+$/) != null) &&
-		(typeof firstname === "string" && firstname.match(/^[a-zA-Z0-9-_]+$/) != null) &&
-        (typeof lastname === "string" && lastname.match(/^[a-zA-Z0-9-_]+$/) != null) &&
-        (typeof password === "string" && password !== "" && password.length >= 8))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+        this.logger.debug("[Controller] Checking user : lastname=%s,firstname=%s,username=%s,password=%s",lastname, firstname, username, password);
+        let res = "";
+        if(!(typeof username === "string" && username.match(/^[a-zA-Z0-9-_]+$/) != null)){
+            this.logger.debug("[Controller] username is wrong");
+            res += "username,";
+        }
+        if(!(typeof firstname === "string" && firstname.match(/^[a-zA-ZÀ-ÿ-_]+$/) != null)){
+            this.logger.debug("[Controller] firstname is wrong");
+            res += "firstname,";
+        }
+        if(!(typeof lastname === "string" && lastname.match(/^[a-zA-ZÀ-ÿ-_]+$/) != null)){
+            this.logger.debug("[Controller] lastname is wrong");
+            res += "lastname,";
+        }
+        if(!(typeof password === "string" && password !== "" && password.length >= 8)){
+            this.logger.debug("[Controller] password is wrong");
+			res += "password,";
+        }
+        res = res.slice(0,-1);
+        return res;
     }
 }
 
