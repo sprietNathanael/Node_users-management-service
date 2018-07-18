@@ -47,15 +47,20 @@ module.exports = {
             user = req.body;
             logger.debug("[Router] POST on /users with body %O",user);
             controller.createUser(user.lastname, user.firstname, user.username, user.password, res);
-            // res.status(200).send([]);
         });
 
         /**
          * Update a user
          */
-        app.put("/users", upload.array(), (req, res) => {
-            logger.debug("[Router] PUT on /users with body %O",req.body);
-            res.status(200).send({});
+        app.put("/users/:userId", upload.array(), (req, res) => {
+            user = req.body;
+            logger.debug("[Router] PUT on /users/%s with body %O",req.params.userId,req.body);
+            if(!isNaN(parseInt(req.params.userId))){
+                controller.updateUser(req.params.userId, user.lastname, user.firstname, user.username, user.password, user.adminPermission, res);
+            }
+            else{
+                res.send(400);
+            }
         });
 
         /**
