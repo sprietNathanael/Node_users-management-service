@@ -27,6 +27,7 @@ module.exports = {
             controller.getUsers(res);
         });
 
+
         /**
          * Get one user
          */
@@ -66,9 +67,14 @@ module.exports = {
         /**
          * Delete a user
          */
-        app.delete("/users", upload.array(), (req, res) => {
-            logger.debug("[Router] DELETE on /users with body %O",req.body);
-            res.send(200);
+        app.delete("/users/:userId", upload.array(), (req, res) => {
+            logger.debug("[Router] DELETE on /users/%s",req.params.userId);
+            if(!isNaN(parseInt(req.params.userId))){
+                controller.deleteUser(req.params.userId, res);
+            }
+            else{
+                res.send(400);
+            }
         });
 
         /**

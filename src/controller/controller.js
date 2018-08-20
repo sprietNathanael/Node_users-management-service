@@ -118,6 +118,27 @@ class Controller {
 
     }
 
+    /**
+     *
+     * @param {Integer} id
+     * @param {Response} res
+     */
+    deleteUser(id, res){
+
+        this.logger.info("[Controller] Deleting User %s",id);
+
+        this.userModel.findById(id).then(user => {
+            if(user !== null){
+                user.destroy().then(() => {
+                    this.logger.info("[Controller] Ok, user deleted !");
+                    res.sendStatus(200);
+                });
+            } else {
+                res.sendStatus(404);
+            }
+        });
+    }
+
 
 
     /**
