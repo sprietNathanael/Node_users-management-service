@@ -73,6 +73,10 @@ database = new Sequelize('null', 'null', 'null', {
 });
 
 model.User = database.import("./model/users.js");
+model.Token = database.import("./model/tokens.js");
+
+model.User.hasMany(model.Token);
+model.Token.belongsTo(model.User);
 
 database.sync().then(() => {
     logger.info("[Database] Database is ready");
