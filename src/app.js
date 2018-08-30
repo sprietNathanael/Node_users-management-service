@@ -20,31 +20,13 @@ logger.info("Version : %s", readFileSync("../version", {
 logger.info("=========================================");
 logger.info("[System] Starting");
 
-var Sequelize = require("sequelize");
-
-var database;
-var model = {};
-
-// Initialisez database
-database = new Sequelize('null', 'null', 'null', {
-    dialect: 'sqlite',
-    storage: 'users.sqlite',
-    logging: false
-});
-
-model.User = database.import("./model/users.js");
-model.Token = database.import("./model/tokens.js");
-
-model.User.hasMany(model.Token);
-model.Token.belongsTo(model.User);
-
-database.sync().then(() => {
+require("./modelInit")().then((model) => {
     logger.info("[Database] Database is ready");
 
     let controller = new Controller(model.User, logger);
 
     let app = express();
-    router.initilizeRoutes(app, controller ,logger);
+    router.initilizeRoutes(app, controller, logger);
 
     let server = require('http').Server(app);
     server.listen(5801);
