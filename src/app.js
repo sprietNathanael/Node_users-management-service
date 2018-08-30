@@ -1,56 +1,16 @@
 #!/usr/bin/env node
+
 "use strict";
 
 const {
     readFileSync
 } = require("fs");
 
-const {
-    createLogger,
-    format,
-    transports
-} = require('winston');
-
-const {
-    combine,
-    timestamp,
-    label,
-    printf,
-    colorize,
-    align,
-    splat,
-    simple
-} = format;
-
 const express = require('express');
 const router = require("./controller/router");
 const Controller = require("./controller/controller");
 
-const myFormat = printf(info => {
-    return `${info.timestamp} [${info.label}] ${info.level}: ${info.message}`;
-});
-
-
-const logger = createLogger({
-    transports: [
-        new transports.Console(),
-        // new transports.File({
-        //     filename: 'combined.log'
-        // })
-    ],
-    level: 'silly',
-    format: combine(
-        label({
-            label: 'UserMS'
-        }),
-        align(),
-        timestamp(),
-        splat(),
-        simple(),
-        colorize(),
-        myFormat
-    ),
-});
+const logger = require("./logger")("silly", "combined.log");
 
 logger.info("=========================================");
 logger.info("Node user management service");
