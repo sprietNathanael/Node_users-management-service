@@ -23,7 +23,10 @@ class Controller {
      * @param {Response} res
      */
     getUsers(res){
-        this.userModel.findAll().then(users => {
+        if (res.constructor.name !== "ServerResponse") {
+            throw new TypeError((typeof res) + " is not a ServerResponse");
+        }
+        return this.userModel.findAll().then(users => {
             this.logger.info("[Controller] Get all users");
             res.status(200).send(users);
         });
