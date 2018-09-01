@@ -2,7 +2,7 @@ const Sequelize = require("sequelize");
 
 
 
-module.exports = function () {
+module.exports = function (dbPath) {
 
 
     var database;
@@ -11,7 +11,7 @@ module.exports = function () {
     // Initialisez database
     database = new Sequelize('null', 'null', 'null', {
         dialect: 'sqlite',
-        storage: 'users.sqlite',
+        storage: dbPath,
         logging: false
     });
 
