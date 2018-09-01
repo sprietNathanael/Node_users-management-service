@@ -3,7 +3,7 @@
  */
 module.exports = function(sequelize, DataTypes) {
 	return sequelize.define( 'user', {
-		id: {type: DataTypes.INTEGER, allowNull: false, unique: true, autoincrement: true, primaryKey: true},
+		id: {type: DataTypes.INTEGER, allowNull: false, unique: true, autoIncrement: true, primaryKey: true},
 		lastname: { type:DataTypes.STRING, allowNull:false},
 		firstname: {type:DataTypes.STRING, allowNull:false},
 		username: {type:DataTypes.STRING, allowNull:false, unique:true},
