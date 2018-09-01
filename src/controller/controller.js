@@ -22,7 +22,7 @@ class Controller {
      * Get all users
      * @param {Response} res
      */
-    getUsers(res){
+    getUsers(res) {
         if (res.constructor.name !== "ServerResponse") {
             throw new TypeError((typeof res) + " is not a ServerResponse");
         }
@@ -37,10 +37,16 @@ class Controller {
      * @param {Integer} id
      * @param {Response} res
      */
-    getUserById(id, res){
-        this.logger.info("[Controller] Get user by id %d",id);
-        this.userModel.findById(id).then(user => {
-            if(user !== null){
+    getUserById(id, res) {
+        if (res.constructor.name !== "ServerResponse") {
+            throw new TypeError((typeof res) + " is not a ServerResponse");
+        }
+        if (typeof id !== "number") {
+            throw new TypeError((typeof id) + " is not a number");
+        }
+        this.logger.info("[Controller] Get user by id %d", id);
+        return this.userModel.findById(id).then(user => {
+            if (user !== null) {
                 res.status(200).send(user);
             } else {
                 res.send(404);
@@ -56,12 +62,28 @@ class Controller {
      * @param {String} password
      * @param {Response} res
      */
-    createUser(lastname, firstname, username, password, res){
-        this.logger.info("[Controller] Creating User");
-        let userCheck = UserUtils.checkUser(lastname, firstname, username, password);
+    createUser(lastname, firstname, username, password, res) {
+        if (res.constructor.name !== "ServerResponse") {
+            throw new TypeError((typeof res) + " is not a ServerResponse");
+        }
+        if (typeof lastname !== "string") {
+            throw new TypeError("lastname is wrong : " + (typeof lastname) + " is not a string");
+        }
+        if (typeof firstname !== "string") {
+            throw new TypeError("firstname is wrong : " + (typeof firstname) + " is not a string");
+        }
+        if (typeof username !== "string") {
+            throw new TypeError("username is wrong : " + (typeof username) + " is not a string");
+        }
+        if (typeof password !== "string") {
+            throw new TypeError("password is wrong : " + (typeof firstname) + " is not a string");
+        }
 
-        if(userCheck === ""){
-            this.userModel.create({
+        this.logger.info("[Controller] Creating User");
+        let userCheck = this.userUtils.checkUserFormat(lastname, firstname, username, password);
+
+        if (userCheck === "") {
+            return this.userModel.create({
                 lastname: lastname,
                 firstname: firstname,
                 username: username,
@@ -69,15 +91,21 @@ class Controller {
             }).then((user) => {
                 this.logger.info("[Controller] Ok, sending user !");
                 res.status(201).send(user);
-            }).catch( ()=>{
+                return user;
+            }).catch((error) => {
                 this.logger.info("[Controller] Bad Request !");
+                this.logger.error(error);
                 res.status(400).send("Username already exists");
+                return null;
 
             });
 
         } else {
             this.logger.info("[Controller] Bad Request !");
-            res.status(400).send("Wrong "+userCheck);
+            res.status(400).send("Wrong " + userCheck);
+            return new Promise((resolve) => {
+                resolve();
+            });
         }
     }
 
@@ -92,14 +120,37 @@ class Controller {
      * @param {Integer} adminPermission
      * @param {Response} res
      */
-    updateUser(id, lastname, firstname, username, password, adminPermission, res){
+    updateUser(id, lastname, firstname, username, password, adminPermission, res) {
+        if (res.constructor.name !== "ServerResponse") {
+            throw new TypeError((typeof res) + " is not a ServerResponse");
+        }
+        if (typeof id !== "number") {
+            throw new TypeError((typeof id) + " is not a number");
+        }
+        if (typeof lastname !== "string") {
+            throw new TypeError("lastname is wrong : " + (typeof lastname) + " is not a string");
+        }
+        if (typeof firstname !== "string") {
+            throw new TypeError("firstname is wrong : " + (typeof firstname) + " is not a string");
+        }
+        if (typeof username !== "string") {
+            throw new TypeError("username is wrong : " + (typeof username) + " is not a string");
+        }
+        if (typeof password !== "string") {
+            throw new TypeError("password is wrong : " + (typeof firstname) + " is not a string");
+        }
+        if (typeof adminPermission !== "number") {
+            throw new TypeError("adminPermission is wrong : " + (typeof adminPermission) + " is not a number");
+        }
+
+
         this.logger.info("[Controller] Updating User");
 
-        this.userModel.findById(id).then(user => {
-            if(user !== null){
-                let userCheck = UserUtils.checkUserFormat(lastname, firstname, username, password);
-                if(userCheck === ""){
-                    user.update({
+        let userCheck = this.userUtils.checkUserFormat(lastname, firstname, username, password);
+        if (userCheck === "") {
+            return this.userModel.findById(id).then(user => {
+                if (user !== null) {
+                    return user.update({
                         lastname: lastname,
                         firstname: firstname,
                         username: username,
@@ -107,20 +158,28 @@ class Controller {
                     }).then((user) => {
                         this.logger.info("[Controller] Ok, sending user !");
                         res.status(201).send(user);
-                    }).catch( ()=>{
+                        return user;
+                    }).catch((error) => {
                         this.logger.info("[Controller] Bad Request !");
                         res.status(400).send("Username already exists");
-
+                        return null;
                     });
 
                 } else {
-                    this.logger.info("[Controller] Bad Request !");
-                    res.status(400).send("Wrong "+userCheck);
+                    this.logger.info(`[Controller] User ${id} not found!`);
+                    res.send(404);
+                    return new Promise((resolve) => {
+                        resolve();
+                    });
                 }
-            } else {
-                res.sendStatus(404);
-            }
-        });
+            });
+        } else {
+            this.logger.info("[Controller] Bad Request !");
+            res.status(400).send("Wrong " + userCheck);
+            return new Promise((resolve) => {
+                resolve();
+            });
+        }
 
     }
 
@@ -129,18 +188,25 @@ class Controller {
      * @param {Integer} id
      * @param {Response} res
      */
-    deleteUser(id, res){
+    deleteUser(id, res) {
 
-        this.logger.info("[Controller] Deleting User %s",id);
+        if (res.constructor.name !== "ServerResponse") {
+            throw new TypeError((typeof res) + " is not a ServerResponse");
+        }
+        if (typeof id !== "number") {
+            throw new TypeError((typeof id) + " is not a number");
+        }
 
-        this.userModel.findById(id).then(user => {
-            if(user !== null){
-                user.destroy().then(() => {
+        this.logger.info("[Controller] Deleting User %s", id);
+
+        return this.userModel.findById(id).then(user => {
+            if (user !== null) {
+                return user.destroy().then(() => {
                     this.logger.info("[Controller] Ok, user deleted !");
-                    res.sendStatus(200);
+                    res.send(200);
                 });
             } else {
-                res.sendStatus(404);
+                res.send(404);
             }
         });
     }

@@ -20,7 +20,7 @@ logger.info("Version : %s", readFileSync("../version", {
 logger.info("=========================================");
 logger.info("[System] Starting");
 
-require("./modelInit")().then((model) => {
+require("./modelInit")("users.sqlite").then((model) => {
     logger.info("[Database] Database is ready");
 
     let controller = new Controller(model.User, logger);

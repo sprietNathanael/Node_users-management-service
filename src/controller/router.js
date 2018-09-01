@@ -47,7 +47,11 @@ module.exports = {
         app.post("/users", upload.array(), (req, res) => {
             user = req.body;
             logger.debug("[Router] POST on /users with body %O",user);
-            controller.createUser(user.lastname, user.firstname, user.username, user.password, res);
+            try{
+                controller.createUser(user.lastname, user.firstname, user.username, user.password, res);
+            } catch(error){
+                res.status(400).send(error.message);
+            }
         });
 
         /**
@@ -57,7 +61,12 @@ module.exports = {
             user = req.body;
             logger.debug("[Router] PUT on /users/%s with body %O",req.params.userId,req.body);
             if(!isNaN(parseInt(req.params.userId))){
-                controller.updateUser(req.params.userId, user.lastname, user.firstname, user.username, user.password, user.adminPermission, res);
+                try{
+                    controller.updateUser(parseInt(req.params.userId), user.lastname, user.firstname, user.username, user.password, user.adminPermission, res);
+                }catch(error){
+                    logger.debug("[Rouger] %s",error.message);
+                    res.status(400).send(error.message);
+                }
             }
             else{
                 res.send(400);
@@ -70,7 +79,11 @@ module.exports = {
         app.delete("/users/:userId", upload.array(), (req, res) => {
             logger.debug("[Router] DELETE on /users/%s",req.params.userId);
             if(!isNaN(parseInt(req.params.userId))){
-                controller.deleteUser(req.params.userId, res);
+                try{
+                    controller.deleteUser(parseInt(req.params.userId), res);
+                }catch(error){
+                    res.status(400).send(error.message);
+                }
             }
             else{
                 res.send(400);
