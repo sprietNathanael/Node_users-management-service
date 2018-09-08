@@ -2,6 +2,9 @@ const winston = require("winston");
 const sequelize = require("sequelize");
 const UserUtils = require("./userUtils");
 
+const jwt = require("jsonwebtoken");
+const passphrase = "thisisapassphrase";
+const expDays = 15;
 
 class Controller {
 
@@ -20,7 +23,7 @@ class Controller {
 
     /**
      * Get all users
-     * @param {Response} res
+     * @param {ServerResponse} res
      */
     getUsers(res) {
         if (res.constructor.name !== "ServerResponse") {
@@ -35,7 +38,7 @@ class Controller {
     /**
      * Get one user by id
      * @param {Integer} id
-     * @param {Response} res
+     * @param {ServerResponse} res
      */
     getUserById(id, res) {
         if (res.constructor.name !== "ServerResponse") {
@@ -60,7 +63,7 @@ class Controller {
      * @param {String} firstname
      * @param {String} username
      * @param {String} password
-     * @param {Response} res
+     * @param {ServerResponse} res
      */
     createUser(lastname, firstname, username, password, res) {
         if (res.constructor.name !== "ServerResponse") {
@@ -118,7 +121,7 @@ class Controller {
      * @param {String} username
      * @param {String} password
      * @param {Integer} adminPermission
-     * @param {Response} res
+     * @param {ServerResponse} res
      */
     updateUser(id, lastname, firstname, username, password, adminPermission, res) {
         if (res.constructor.name !== "ServerResponse") {
@@ -184,9 +187,9 @@ class Controller {
     }
 
     /**
-     *
+     * Delete a user
      * @param {Integer} id
-     * @param {Response} res
+     * @param {ServerResponse} res
      */
     deleteUser(id, res) {
 
@@ -204,9 +207,161 @@ class Controller {
                 return user.destroy().then(() => {
                     this.logger.info("[Controller] Ok, user deleted !");
                     res.send(200);
+                    return null;
                 });
             } else {
                 res.send(404);
+                return null;
+            }
+        });
+    }
+
+    /**
+     * Try to login with a a username and a password
+     * @param {String} username Username that tries to login
+     * @param {String} password Password to try to login with
+     * @param {ServerResponse} res
+     */
+    login(username, password, res) {
+        if (res.constructor.name !== "ServerResponse") {
+            throw new TypeError((typeof res) + " is not a ServerResponse");
+        }
+        if (typeof username !== "string") {
+            throw new TypeError("username is wrong : " + (typeof username) + " is not a string");
+        }
+        if (typeof password !== "string") {
+            throw new TypeError("password is wrong : " + (typeof firstname) + " is not a string");
+        }
+
+        return this.userModel.findOne({
+            where: {
+                username: username,
+                password: password
+            }
+        }).then(user => {
+            if (user !== null) {
+                // Create a new token
+                let token = jwt.sign({
+                    exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * expDays),
+                    jwtid: Math.random().toString(),
+                }, passphrase);
+                return user.createToken({
+                    token: token
+                }).then(() => {
+                    let userToSend = Object.assign(user.get(), {
+                        token: token
+                    });
+                    delete userToSend.password;
+                    let userToReturn = Object.assign(user, {
+                        token: token
+                    });
+                    res.status(200).send(userToSend);
+                    return userToReturn;
+                });
+            } else {
+                res.status(401).send("Wrong username / password");
+                return null;
+            }
+        });
+
+    }
+
+    /**
+     * Try to logout with a username and a token
+     * @param {String} username Username that wants to login
+     * @param {String} token Token that wants to logout
+     * @param {ServerResponse} res
+     */
+    logout(username, token, res) {
+        if (res.constructor.name !== "ServerResponse") {
+            throw new TypeError((typeof res) + " is not a ServerResponse");
+        }
+        if (typeof username !== "string") {
+            throw new TypeError((typeof id) + " is not a string");
+        }
+        if (typeof token !== "string") {
+            throw new TypeError((typeof token) + " is not a string");
+        }
+        return this.userModel.findOne({
+            where: {
+                username: username
+            }
+        }).then(user => {
+            if (user !== null) {
+
+                return user.getTokens({
+                    where: {
+                        token: token
+                    }
+                }).then((tokenRes) => {
+                    if (tokenRes.length === 1) {
+                        return tokenRes[0].destroy().then(() => {
+                            res.send(200);
+                        });
+                    } else {
+                        res.send(404);
+                    }
+                });
+            } else {
+                res.send(404);
+            }
+        });
+    }
+
+    /**
+     * Try a token
+     * @param {String} username Username to try
+     * @param {String} token Token to try
+     * @param {ServerResponse} res
+     */
+    tryToken(username, token, res) {
+        if (res.constructor.name !== "ServerResponse") {
+            throw new TypeError((typeof res) + " is not a ServerResponse");
+        }
+        if (typeof username !== "string") {
+            throw new TypeError((typeof id) + " is not a string");
+        }
+        if (typeof token !== "string") {
+            throw new TypeError((typeof token) + " is not a string");
+        }
+
+        return this.userModel.findOne({
+            where: {
+                username: username
+            }
+        }).then(user => {
+            if (user !== null) {
+
+                try {
+                    jwt.verify(token, passphrase);
+                    return user.getTokens({
+                        where: {
+                            token: token
+                        }
+                    }).then((tokenRes) => {
+                        if (tokenRes.length === 1) {
+                            res.send(200);
+                            return true;
+                        } else {
+                            res.send(404);
+                            return false;
+                        }
+                    });
+                } catch (error) {
+                    if (error instanceof jwt.TokenExpiredError) {
+                        res.status(401).send("Token has expired");
+                        return false;
+                    } else if (error instanceof jwt.JsonWebTokenError) {
+                        res.status(401).send("Token is invalid");
+                        return false;
+                    } else {
+                        res.send(401);
+                        return false;
+                    }
+                }
+            } else {
+                res.send(404);
+                return false;
             }
         });
     }

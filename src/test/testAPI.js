@@ -2,6 +2,7 @@ const fs = require('fs');
 const assert = require("assert");
 const dbPath = "test/usersCheckAPI.sqlite";
 const should = require("should");
+const jwt = require("jsonwebtoken");
 
 if (fs.existsSync(dbPath)) {
     fs.unlinkSync(dbPath);
@@ -13,6 +14,23 @@ const router = require("../controller/router");
 const Controller = require("../controller/controller");
 
 const logger = require("../logger")("error");
+
+var token;
+
+var incorrectToken = jwt.sign({
+    exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 15),
+    jwtid: Math.random().toString(),
+}, "falsePassphrase");
+
+var expiredToken = jwt.sign({
+    exp: Math.floor(Date.now() / 1000) - (60 * 60 * 24 * 15),
+    jwtid: Math.random().toString(),
+}, "thisisapassphrase");
+
+var notExistingToken = jwt.sign({
+    exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 15),
+    jwtid: Math.random().toString(),
+}, "thisisapassphrase");
 
 require("../modelInit")(dbPath).then((model) => {
     model.User.create({
@@ -338,6 +356,174 @@ require("../modelInit")(dbPath).then((model) => {
             }
         }]
     },{
+        description: "POST /login",
+        function: request(app).post,
+        tests: [{
+            route: "/login",
+            sending: {
+                username: 1,
+                password: "testtest5"
+            },
+            description: "Response should be 400 if the username is not a string",
+            code: 400,
+            format: "application/text"
+        },{
+            route: "/login",
+            sending: {
+                username: "test5",
+                password: 1
+            },
+            description: "Response should be 400 if the password is not a string",
+            code: 400,
+            format: "application/text"
+        },{
+            route: "/login",
+            sending: {
+                username: "testFalse",
+                password: "testtest5"
+            },
+            description: "Response should be 401 if the user is not correct",
+            code: 401,
+            format: "application/text",
+            function: (res) => {
+                assert(res.text, "Wrong username / password");
+            }
+        },{
+            route: "/login",
+            sending: {
+                username: "testFalse",
+                password: "testtestFalse"
+            },
+            description: "Response should be 401 if the password is not correct",
+            code: 401,
+            format: "application/text",
+            function: (res) => {
+                assert(res.text, "Wrong username / password");
+            }
+        },{
+            route: "/login",
+            sending: {
+                username: "test5",
+                password: "testtest5"
+            },
+            description: "Response should be 200 if the user can log",
+            code: 200,
+            format: "application/body",
+            function: (res) => {
+                assert(res.body.id, 2);
+                assert(res.body.lastname, "testR");
+                assert(res.body.firstname, "testR");
+                assert(res.body.username, "test5");
+                assert.equal(res.body.password, undefined);
+                assert(typeof res.body.token, "string");
+                token = res.body.token;
+            }
+        }]
+    },{
+        description: "POST /tryToken",
+        function: request(app).post,
+        tests: [{
+            route: "/tryToken",
+            sending: {
+                username: 1,
+                token: "testtest5"
+            },
+            description: "Response should be 400 if the username is not a string",
+            code: 400,
+            format: "application/text"
+        },{
+            route: "/tryToken",
+            sending: {
+                username: "test5",
+                token: 1
+            },
+            description: "Response should be 400 if the token is not a string",
+            code: 400,
+            format: "application/text"
+        },{
+            route: "/tryToken",
+            sending: {
+                username: "testFalse",
+                token: "testtest"
+            },
+            description: "Response should be 404 if the user does not exists",
+            code: 404,
+            format: "application/text"
+        },{
+            route: "/tryToken",
+            sending: {
+                username: "test",
+                token: incorrectToken
+            },
+            description: "Response should be 401 if the token is not correct",
+            code: 401,
+            format: "application/text",
+            function: (res) => {
+                assert(res.text, "Token is invalid");
+            }
+        },{
+            route: "/tryToken",
+            sending: {
+                username: "test",
+                token: expiredToken
+            },
+            description: "Response should be 401 if the token is expired",
+            code: 401,
+            format: "application/text",
+            function: (res) => {
+                assert(res.text, "Token has expired");
+            }
+        },{
+            route: "/tryToken",
+            sending: {
+                username: "test",
+                token: notExistingToken
+            },
+            description: "Response should be 404 if the token does not exists",
+            code: 404,
+            format: "application/text"
+        }]
+    },{
+        description: "POST /logout",
+        function: request(app).post,
+        tests: [{
+            route: "/logout",
+            sending: {
+                username: 1,
+                token: "testtest5"
+            },
+            description: "Response should be 400 if the username is not a string",
+            code: 400,
+            format: "application/text"
+        },{
+            route: "/logout",
+            sending: {
+                username: "test5",
+                token: 1
+            },
+            description: "Response should be 400 if the token is not a string",
+            code: 400,
+            format: "application/text"
+        },{
+            route: "/logout",
+            sending: {
+                username: "testFalse",
+                token: "testtest"
+            },
+            description: "Response should be 404 if the user does not exists",
+            code: 404,
+            format: "application/text"
+        },{
+            route: "/logout",
+            sending: {
+                username: "test",
+                token: notExistingToken
+            },
+            description: "Response should be 404 if the token does not exists",
+            code: 404,
+            format: "application/text"
+        }]
+    },{
         description: "DELETE /users/:id",
         function: request(app).delete,
         tests: [{
@@ -356,7 +542,7 @@ require("../modelInit")(dbPath).then((model) => {
             code: 200,
             format: "application/text"
         }]
-    },{
+    }, {
         description: "GET /test",
         function: request(app).get,
         tests: [{

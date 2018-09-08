@@ -10,9 +10,28 @@ const fs = require('fs');
 
 const assert = require('assert');
 
+const jwt = require("jsonwebtoken");
+
 // delete database if exists
 
 const dbPath = "test/usersCheckController.sqlite";
+
+var token;
+
+var incorrectToken = jwt.sign({
+    exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 15),
+    jwtid: Math.random().toString(),
+}, "falsePassphrase");
+
+var expiredToken = jwt.sign({
+    exp: Math.floor(Date.now() / 1000) - (60 * 60 * 24 * 15),
+    jwtid: Math.random().toString(),
+}, "thisisapassphrase");
+
+var notExistingToken = jwt.sign({
+    exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 15),
+    jwtid: Math.random().toString(),
+}, "thisisapassphrase");
 
 if (fs.existsSync(dbPath)) {
     fs.unlinkSync(dbPath);
@@ -62,6 +81,10 @@ var passwordParameterType = new ParameterType("password", [], "abc132¨ê$Ç+²"
 //----------------------- adminPermission ---------------------------
 
 var adminPermissionParameterType = new ParameterType("adminPermission", [], 1, "123");
+
+//----------------------- token ---------------------------
+
+var tokenParameterType = new ParameterType("token", [], "abc132¨ê$Ç+²", 123);
 
 require("../modelInit")(dbPath).then((model) => {
     model.User.create({
@@ -319,6 +342,179 @@ require("../modelInit")(dbPath).then((model) => {
             promise: true,
         }]);
 
+        //------------------- login -----------------------
+
+        var checkLogin = new FunctionWithoutReturnTester(controller.login, [{
+            type: usernameParameterType,
+            name: "username"
+        }, {
+            type: passwordParameterType,
+            name: "password"
+        }, {
+            type: serverResponseParameterType,
+            name: "res"
+        }], controller, [{
+            description: "serverResponse.status with parameter 401 if the username is not correct",
+            parametersToTest: ["test2", "testtest", mockServerResponse],
+            expectedFunction: mockServerResponse.status,
+            expectedFunctionContext: mockServerResponse,
+            expectedParameters: [401],
+            promise: true,
+        }, {
+            description: "serverResponse.send with parameter 'Wrong username / password' if the username is not correct",
+            parametersToTest: ["test2", "testtest", mockServerResponse],
+            expectedFunction: mockServerResponse.send,
+            expectedFunctionContext: mockServerResponse,
+            expectedParameters: ["Wrong username / password"],
+            promise: true,
+        }, {
+            description: "serverResponse.send with parameter 'Wrong username / password' if the password is not correct",
+            parametersToTest: ["test", "testtest2", mockServerResponse],
+            expectedFunction: mockServerResponse.send,
+            expectedFunctionContext: mockServerResponse,
+            expectedParameters: ["Wrong username / password"],
+            promise: true,
+        }, {
+            description: "serverResponse.status with parameter 200 if the username / password is correct",
+            parametersToTest: ["abcABC_-1234", "abc132¨ê$Ç+²", mockServerResponse],
+            expectedFunction: mockServerResponse.status,
+            expectedFunctionContext: mockServerResponse,
+            expectedParameters: [200],
+            promise: true,
+        }, {
+            description: "The user should have 3 tokens",
+            customTestFunction: () => {
+                return controller.login("abcABC_-1234", "abc132¨ê$Ç+²", mockServerResponse).then((user) => {
+
+                    return user.getTokens().then((tokens) => {
+                        assert.equal(tokens.length, 3);
+                        token = tokens[0].token;
+                    });;
+                });
+            },
+            promise: true,
+        }]);
+
+        //------------------- logout -----------------------
+
+        var checkLogout = new FunctionWithoutReturnTester(controller.logout, [{
+            type: usernameParameterType,
+            name: "username"
+        }, {
+            type: tokenParameterType,
+            name: "token"
+        }, {
+            type: serverResponseParameterType,
+            name: "res"
+        }], controller, [{
+            description: "serverResponse.send with parameter 404 if the user does not exists",
+            parametersToTest: ["test", "testtest", mockServerResponse],
+            expectedFunction: mockServerResponse.send,
+            expectedFunctionContext: mockServerResponse,
+            expectedParameters: [404],
+            promise: true,
+        }, {
+            description: "serverResponse.send with parameter 404 if the token does not exists",
+            parametersToTest: ["abcABC_-1234", "testtest", mockServerResponse],
+            expectedFunction: mockServerResponse.send,
+            expectedFunctionContext: mockServerResponse,
+            expectedParameters: [404],
+            promise: true,
+        }, {
+            description: "Token should still exists",
+            customTestFunction: () => {
+                return model.User.findById(2).then((user) => {
+                    return user.getTokens({
+                        where: {
+                            token: token
+                        }
+                    }).then((tokens) => {
+                        assert.equal(tokens.length,1);
+                    });;
+                });
+            },
+            promise: true,
+        }, {
+            description: "Token should not exist anymore after logout",
+            customTestFunction: () => {
+                return controller.logout("abcABC_-1234", token, mockServerResponse).then(() => {
+                    return model.User.findById(2).then((user) => {
+                        return user.getTokens({
+                            where: {
+                                token: token
+                            }
+                        }).then((tokens) => {
+                            assert.equal(tokens.length,0);
+                        });;
+                    });
+                });
+            },
+            promise: true,
+        }]);
+
+        //------------------- tryToken -----------------------
+
+        var checkTryToken = new FunctionWithoutReturnTester(controller.tryToken, [{
+            type: usernameParameterType,
+            name: "username"
+        }, {
+            type: tokenParameterType,
+            name: "token"
+        }, {
+            type: serverResponseParameterType,
+            name: "res"
+        }], controller, [{
+            description: "serverResponse.send with parameter 404 if the user does not exists",
+            parametersToTest: ["test", "testtest", mockServerResponse],
+            expectedFunction: mockServerResponse.send,
+            expectedFunctionContext: mockServerResponse,
+            expectedParameters: [404],
+            promise: true,
+        }, {
+            description: "serverResponse.status with parameter 401 if the token is not correct",
+            parametersToTest: ["abcABC_-1234", incorrectToken, mockServerResponse],
+            expectedFunction: mockServerResponse.status,
+            expectedFunctionContext: mockServerResponse,
+            expectedParameters: [401],
+            promise: true,
+        }, {
+            description: "serverResponse.send with parameter 'Token is invalid' if the token is not correct",
+            parametersToTest: ["abcABC_-1234", incorrectToken, mockServerResponse],
+            expectedFunction: mockServerResponse.send,
+            expectedFunctionContext: mockServerResponse,
+            expectedParameters: ["Token is invalid"],
+            promise: true,
+        }, {
+            description: "serverResponse.status with parameter 401 if the token is expired",
+            parametersToTest: ["abcABC_-1234", expiredToken, mockServerResponse],
+            expectedFunction: mockServerResponse.status,
+            expectedFunctionContext: mockServerResponse,
+            expectedParameters: [401],
+            promise: true,
+        }, {
+            description: "serverResponse.send with parameter 'Token has expired' if the token is expired",
+            parametersToTest: ["abcABC_-1234", expiredToken, mockServerResponse],
+            expectedFunction: mockServerResponse.send,
+            expectedFunctionContext: mockServerResponse,
+            expectedParameters: ["Token has expired"],
+            promise: true,
+        },{
+            description: "serverResponse.send with parameter 404 if the token does not exists",
+            parametersToTest: ["abcABC_-1234", notExistingToken, mockServerResponse],
+            expectedFunction: mockServerResponse.send,
+            expectedFunctionContext: mockServerResponse,
+            expectedParameters: [404],
+            promise: true,
+        }, {
+            description: "Should return true if the token is correct",
+            customTestFunction: () => {
+                return controller.tryToken("abcABC_-1234", token, mockServerResponse).then((res) => {
+                    assert.equal(res,true);
+                });
+            },
+            promise: true,
+        }]);
+
         describe('Controller', function () {
 
             after(function () {
@@ -333,6 +529,12 @@ require("../modelInit")(dbPath).then((model) => {
             checkUpdateUser.testFunction();
 
             checkDeleteUser.testFunction();
+
+            checkLogin.testFunction();
+
+            checkTryToken.testFunction();
+
+            checkLogout.testFunction();
 
 
         });

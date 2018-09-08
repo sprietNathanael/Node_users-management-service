@@ -32,11 +32,10 @@ module.exports = {
          * Get one user
          */
         app.get("/users/:userId", (req, res) => {
-            logger.debug("[Router] GET on /users/%s",req.params.userId);
-            if(!isNaN(parseInt(req.params.userId))){
+            logger.debug("[Router] GET on /users/%s", req.params.userId);
+            if (!isNaN(parseInt(req.params.userId))) {
                 controller.getUserById(parseInt(req.params.userId), res);
-            }
-            else{
+            } else {
                 res.send(400);
             }
         });
@@ -46,10 +45,10 @@ module.exports = {
          */
         app.post("/users", upload.array(), (req, res) => {
             user = req.body;
-            logger.debug("[Router] POST on /users with body %O",user);
-            try{
+            logger.debug("[Router] POST on /users with body %O", user);
+            try {
                 controller.createUser(user.lastname, user.firstname, user.username, user.password, res);
-            } catch(error){
+            } catch (error) {
                 res.status(400).send(error.message);
             }
         });
@@ -59,16 +58,15 @@ module.exports = {
          */
         app.put("/users/:userId", upload.array(), (req, res) => {
             user = req.body;
-            logger.debug("[Router] PUT on /users/%s with body %O",req.params.userId,req.body);
-            if(!isNaN(parseInt(req.params.userId))){
-                try{
+            logger.debug("[Router] PUT on /users/%s with body %O", req.params.userId, req.body);
+            if (!isNaN(parseInt(req.params.userId))) {
+                try {
                     controller.updateUser(parseInt(req.params.userId), user.lastname, user.firstname, user.username, user.password, user.adminPermission, res);
-                }catch(error){
-                    logger.debug("[Rouger] %s",error.message);
+                } catch (error) {
+                    logger.debug("[Rouger] %s", error.message);
                     res.status(400).send(error.message);
                 }
-            }
-            else{
+            } else {
                 res.send(400);
             }
         });
@@ -77,24 +75,62 @@ module.exports = {
          * Delete a user
          */
         app.delete("/users/:userId", upload.array(), (req, res) => {
-            logger.debug("[Router] DELETE on /users/%s",req.params.userId);
-            if(!isNaN(parseInt(req.params.userId))){
-                try{
+            logger.debug("[Router] DELETE on /users/%s", req.params.userId);
+            if (!isNaN(parseInt(req.params.userId))) {
+                try {
                     controller.deleteUser(parseInt(req.params.userId), res);
-                }catch(error){
+                } catch (error) {
                     res.status(400).send(error.message);
                 }
-            }
-            else{
+            } else {
                 res.send(400);
             }
         });
 
         /**
+         * Post on login
+         */
+        app.post("/login", (req, res) => {
+            logger.debug("[Router] POST on /login");
+            try {
+                controller.login(req.body.username, req.body.password, res);
+            } catch (error) {
+                res.status(400).send(error.message);
+            }
+
+        });
+
+        /**
+         * Post on tryToken
+         */
+        app.post("/tryToken", (req, res) => {
+            logger.debug("[Router] POST on /tryToken");
+            try {
+                controller.tryToken(req.body.username, req.body.token, res);
+            } catch (error) {
+                res.status(400).send(error.message);
+            }
+
+        });
+
+        /**
+         * Post on logout
+         */
+        app.post("/logout", (req, res) => {
+            logger.debug("[Router] POST on /logout");
+            try {
+                controller.logout(req.body.username, req.body.token, res);
+            } catch (error) {
+                res.status(400).send(error.message);
+            }
+
+        });
+
+        /**
          * Default route
          */
-        app.use(function(req, res){
-            logger.debug("[Router] 404 : access to %s",req.url);
+        app.use(function (req, res) {
+            logger.debug("[Router] 404 : access to %s", req.url);
             res.send(404);
         });
 
