@@ -10,7 +10,7 @@ const express = require('express');
 const router = require("./controller/router");
 const Controller = require("./controller/controller");
 
-const logger = require("./logger")("silly", "combined.log");
+const logger = require("./logger")("silly", "UserMS", "combined.log");
 
 logger.info("=========================================");
 logger.info("Node user management service");

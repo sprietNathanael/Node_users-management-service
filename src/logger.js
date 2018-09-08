@@ -19,7 +19,7 @@ const myFormat = printf(info => {
     return `${info.timestamp} [${info.label}] ${info.level}: ${info.message}`;
 });
 
-module.exports = function (level="info",path) {
+module.exports = function (level="info",serviceName="logger",path) {
 
 
     var desiredTransports = [
@@ -38,7 +38,7 @@ module.exports = function (level="info",path) {
         level: level,
         format: combine(
             label({
-                label: 'UserMS'
+                label: serviceName
             }),
             align(),
             timestamp(),
