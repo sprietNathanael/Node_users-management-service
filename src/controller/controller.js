@@ -25,7 +25,15 @@ class Controller {
      * Get all users
      */
     getUsers() {
-        return this.userModel.findAll();
+        return this.userModel.findAll().then((users) => {
+            let usersToSend = [];
+            for (let user of users) {
+                let userInter = Object.assign(user.get());
+                delete userInter.password;
+                usersToSend.push(userInter);
+            }
+            return usersToSend;
+        });
     }
 
     /**
@@ -37,7 +45,14 @@ class Controller {
             throw new TypeError((typeof id) + " is not a number");
         }
         this.logger.info("[Controller] Get user by id %d", id);
-        return this.userModel.findById(id);
+        return this.userModel.findById(id).then((user) => {
+            let userInter = null;
+            if(user !== null){
+                userInter = Object.assign(user.get());
+                delete userInter.password;
+            }
+            return userInter;
+        });
     }
 
     /**
@@ -47,7 +62,7 @@ class Controller {
      * @param {String} username
      * @param {String} password
      */
-    createUser(lastname, firstname, username, password, ) {
+    createUser(lastname, firstname, username, password) {
         if (typeof lastname !== "string") {
             throw new TypeError("lastname is wrong : " + (typeof lastname) + " is not a string");
         }
@@ -58,7 +73,7 @@ class Controller {
             throw new TypeError("username is wrong : " + (typeof username) + " is not a string");
         }
         if (typeof password !== "string") {
-            throw new TypeError("password is wrong : " + (typeof firstname) + " is not a string");
+            throw new TypeError("password is wrong : " + (typeof password) + " is not a string");
         }
 
         this.logger.info("[Controller] Creating User");
@@ -73,7 +88,12 @@ class Controller {
                 password: password
             }).then((user) => {
                 this.logger.info("[Controller] Ok, sending user !");
-                return user;
+                let userInter = null;
+                if(user !== null){
+                    userInter = Object.assign(user.get());
+                    delete userInter.password;
+                }
+                return userInter;
             }).catch((error) => {
                 this.logger.info("[Controller] Bad Request !");
                 this.logger.error(error);
@@ -112,7 +132,7 @@ class Controller {
             throw new TypeError("username is wrong : " + (typeof username) + " is not a string");
         }
         if (typeof password !== "string") {
-            throw new TypeError("password is wrong : " + (typeof firstname) + " is not a string");
+            throw new TypeError("password is wrong : " + (typeof password) + " is not a string");
         }
         if (typeof adminPermission !== "number") {
             throw new TypeError("adminPermission is wrong : " + (typeof adminPermission) + " is not a number");
@@ -133,7 +153,12 @@ class Controller {
                         adminPermission: adminPermission
                     }).then((user) => {
                         this.logger.info("[Controller] Ok, sending user !");
-                        return user;
+                        let userInter = null;
+                        if(user !== null){
+                            userInter = Object.assign(user.get());
+                            delete userInter.password;
+                        }
+                        return userInter;
                     }).catch((error) => {
                         this.logger.info("[Controller] Bad Request !");
                         this.logger.error(error);

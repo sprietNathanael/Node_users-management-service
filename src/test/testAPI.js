@@ -57,9 +57,10 @@ require("../modelInit")(dbPath).then((model) => {
             code: 200,
             format: "application/json",
             function: (res) => {
-                assert(res.body.length, 1);
-                assert(res.body[0].id, 1);
-                assert(res.body[0].username, "test");
+                assert.equal(res.body.length, 1);
+                assert.equal(res.body[0].id, 1);
+                assert.equal(res.body[0].username, "test");
+                assert.equal(res.body[0].password, undefined);
             }
         }]
     },
@@ -83,8 +84,8 @@ require("../modelInit")(dbPath).then((model) => {
             code: 200,
             format: "application/json",
             function: (res) => {
-                assert(res.body.id, 1);
-                assert(res.body.username, "test");
+                assert.equal(res.body.id, 1);
+                assert.equal(res.body.username, "test");
             }
         }, ]
     },
@@ -104,7 +105,7 @@ require("../modelInit")(dbPath).then((model) => {
             code: 400,
             format: "application/text",
             function: (res) => {
-                assert(res.text, "lastname is wrong : number is not a string");
+                assert.equal(res.text, "lastname is wrong : number is not a string");
             }
         }, {
             route: "/users",
@@ -118,7 +119,7 @@ require("../modelInit")(dbPath).then((model) => {
             code: 400,
             format: "application/text",
             function: (res) => {
-                assert(res.text, "firstname is wrong : number is not a string");
+                assert.equal(res.text, "firstname is wrong : number is not a string");
             }
         }, {
             route: "/users",
@@ -132,7 +133,7 @@ require("../modelInit")(dbPath).then((model) => {
             code: 400,
             format: "application/text",
             function: (res) => {
-                assert(res.text, "username is wrong : number is not a string");
+                assert.equal(res.text, "username is wrong : number is not a string");
             }
         }, {
             route: "/users",
@@ -146,7 +147,7 @@ require("../modelInit")(dbPath).then((model) => {
             code: 400,
             format: "application/text",
             function: (res) => {
-                assert(res.text, "password is wrong : number is not a string");
+                assert.equal(res.text, "password is wrong : number is not a string");
             }
         }, {
             route: "/users",
@@ -160,7 +161,7 @@ require("../modelInit")(dbPath).then((model) => {
             code: 400,
             format: "application/text",
             function: (res) => {
-                assert(res.text, "Wrong lastname");
+                assert.equal(res.text, "Wrong lastname");
             }
         }, {
             route: "/users",
@@ -174,7 +175,7 @@ require("../modelInit")(dbPath).then((model) => {
             code: 400,
             format: "application/text",
             function: (res) => {
-                assert(res.text, "Wrong lastname,username");
+                assert.equal(res.text, "Wrong lastname,username");
             }
         }, {
             route: "/users",
@@ -188,7 +189,7 @@ require("../modelInit")(dbPath).then((model) => {
             code: 400,
             format: "application/text",
             function: (res) => {
-                assert(res.text, "Username already exists");
+                assert.equal(res.text, "Username already exists");
             }
         }, {
             route: "/users",
@@ -202,16 +203,16 @@ require("../modelInit")(dbPath).then((model) => {
             code: 201,
             format: "application/body",
             function: (res) => {
-                assert(res.body.id, 2);
-                assert(res.body.lastname, "testT");
-                assert(res.body.firstname, "testT");
-                assert(res.body.username, "test2");
-                assert(res.body.password, "testtest2");
+                assert.equal(res.body.id, 2);
+                assert.equal(res.body.lastname, "testT");
+                assert.equal(res.body.firstname, "testT");
+                assert.equal(res.body.username, "test2");
+                assert.equal(res.body.password, undefined   );
             }
         }]
     },
     //-------------------------- PUT /users:id ---------------------
-     {
+    {
         description: "PUT /users:id",
         function: request(app).put,
         tests: [{
@@ -251,7 +252,7 @@ require("../modelInit")(dbPath).then((model) => {
             code: 400,
             format: "application/text",
             function: (res) => {
-                assert(res.text, "lastname is wrong : number is not a string");
+                assert.equal(res.text, "lastname is wrong : number is not a string");
             }
         }, {
             route: "/users/2",
@@ -266,7 +267,7 @@ require("../modelInit")(dbPath).then((model) => {
             code: 400,
             format: "application/text",
             function: (res) => {
-                assert(res.text, "firstname is wrong : number is not a string");
+                assert.equal(res.text, "firstname is wrong : number is not a string");
             }
         }, {
             route: "/users/2",
@@ -281,7 +282,7 @@ require("../modelInit")(dbPath).then((model) => {
             code: 400,
             format: "application/text",
             function: (res) => {
-                assert(res.text, "username is wrong : number is not a string");
+                assert.equal(res.text, "username is wrong : number is not a string");
             }
         }, {
             route: "/users/2",
@@ -296,7 +297,7 @@ require("../modelInit")(dbPath).then((model) => {
             code: 400,
             format: "application/text",
             function: (res) => {
-                assert(res.text, "password is wrong : number is not a string");
+                assert.equal(res.text, "password is wrong : number is not a string");
             }
         }, {
             route: "/users/2",
@@ -311,7 +312,7 @@ require("../modelInit")(dbPath).then((model) => {
             code: 400,
             format: "application/text",
             function: (res) => {
-                assert(res.text, "Wrong lastname");
+                assert.equal(res.text, "Wrong lastname");
             }
         }, {
             route: "/users/2",
@@ -326,7 +327,7 @@ require("../modelInit")(dbPath).then((model) => {
             code: 400,
             format: "application/text",
             function: (res) => {
-                assert(res.text, "Wrong lastname,username");
+                assert.equal(res.text, "Wrong lastname,username");
             }
         }, {
             route: "/users/2",
@@ -341,7 +342,7 @@ require("../modelInit")(dbPath).then((model) => {
             code: 400,
             format: "application/text",
             function: (res) => {
-                assert(res.text, "Username already exists");
+                assert.equal(res.text, "Username already exists");
             }
         }, {
             route: "/users/2",
@@ -356,11 +357,11 @@ require("../modelInit")(dbPath).then((model) => {
             code: 201,
             format: "application/body",
             function: (res) => {
-                assert(res.body.id, 2);
-                assert(res.body.lastname, "testR");
-                assert(res.body.firstname, "testR");
-                assert(res.body.username, "test5");
-                assert(res.body.password, "testtest5");
+                assert.equal(res.body.id, 2);
+                assert.equal(res.body.lastname, "testR");
+                assert.equal(res.body.firstname, "testR");
+                assert.equal(res.body.username, "test5");
+                assert.equal(res.body.password, undefined);
             }
         }]
     },
@@ -396,7 +397,7 @@ require("../modelInit")(dbPath).then((model) => {
             code: 401,
             format: "application/text",
             function: (res) => {
-                assert(res.text, "Wrong username / password");
+                assert.equal(res.text, "Wrong username / password");
             }
         },{
             route: "/login",
@@ -408,7 +409,7 @@ require("../modelInit")(dbPath).then((model) => {
             code: 401,
             format: "application/text",
             function: (res) => {
-                assert(res.text, "Wrong username / password");
+                assert.equal(res.text, "Wrong username / password");
             }
         },{
             route: "/login",
@@ -420,12 +421,12 @@ require("../modelInit")(dbPath).then((model) => {
             code: 200,
             format: "application/body",
             function: (res) => {
-                assert(res.body.id, 2);
-                assert(res.body.lastname, "testR");
-                assert(res.body.firstname, "testR");
-                assert(res.body.username, "test5");
+                assert.equal(res.body.id, 2);
+                assert.equal(res.body.lastname, "testR");
+                assert.equal(res.body.firstname, "testR");
+                assert.equal(res.body.username, "test5");
                 assert.equal(res.body.password, undefined);
-                assert(typeof res.body.token, "string");
+                assert.equal(typeof res.body.token, "string");
                 token = res.body.token;
             }
         }]
@@ -471,7 +472,7 @@ require("../modelInit")(dbPath).then((model) => {
             code: 401,
             format: "application/text",
             function: (res) => {
-                assert(res.text, "Token is invalid");
+                assert.equal(res.text, "Token is invalid");
             }
         },{
             route: "/tryToken",
@@ -483,7 +484,7 @@ require("../modelInit")(dbPath).then((model) => {
             code: 401,
             format: "application/text",
             function: (res) => {
-                assert(res.text, "Token has expired");
+                assert.equal(res.text, "Token has expired");
             }
         },{
             route: "/tryToken",

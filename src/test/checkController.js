@@ -86,7 +86,7 @@ require("../modelInit")(dbPath).then((model) => {
                     assert.equal(res[0].lastname, "test");
                     assert.equal(res[0].firstname, "test");
                     assert.equal(res[0].username, "test");
-                    assert.equal(res[0].password, "testtest");
+                    assert.equal(res[0].password, undefined);
                 });
             }
         }]);
@@ -110,7 +110,7 @@ require("../modelInit")(dbPath).then((model) => {
                     assert.equal(res.lastname, "test");
                     assert.equal(res.firstname, "test");
                     assert.equal(res.username, "test");
-                    assert.equal(res.password, "testtest");
+                    assert.equal(res.password, undefined);
                 });
             }
         }]);
@@ -166,7 +166,7 @@ require("../modelInit")(dbPath).then((model) => {
                     assert.equal(user.lastname, "test");
                     assert.equal(user.firstname, "test");
                     assert.equal(user.username, "test2");
-                    assert.equal(user.password, "testtest");
+                    assert.equal(user.password, undefined);
                 });
             }
         }, {
@@ -238,7 +238,7 @@ require("../modelInit")(dbPath).then((model) => {
                     assert.equal(user.lastname, "testT");
                     assert.equal(user.firstname, "testT");
                     assert.equal(user.username, "test3");
-                    assert.equal(user.password, "testtest3");
+                    assert.equal(user.password, undefined);
                     assert.equal(user.adminPermission, 1);
                 });
             }
