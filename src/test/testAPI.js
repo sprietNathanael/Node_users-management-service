@@ -61,6 +61,8 @@ require("../modelInit")(dbPath).then((model) => {
                 assert.equal(res.body[0].id, 1);
                 assert.equal(res.body[0].username, "test");
                 assert.equal(res.body[0].password, undefined);
+                assert.equal(res.body[0].createdAt, undefined);
+                assert.equal(res.body[0].updatedAt, undefined);
             }
         }]
     },
@@ -207,7 +209,9 @@ require("../modelInit")(dbPath).then((model) => {
                 assert.equal(res.body.lastname, "testT");
                 assert.equal(res.body.firstname, "testT");
                 assert.equal(res.body.username, "test2");
-                assert.equal(res.body.password, undefined   );
+                assert.equal(res.body.password, undefined);
+                assert.equal(res.body.createdAt, undefined);
+                assert.equal(res.body.updatedAt, undefined);
             }
         }]
     },
@@ -362,6 +366,8 @@ require("../modelInit")(dbPath).then((model) => {
                 assert.equal(res.body.firstname, "testR");
                 assert.equal(res.body.username, "test5");
                 assert.equal(res.body.password, undefined);
+                assert.equal(res.body.createdAt, undefined);
+                assert.equal(res.body.updatedAt, undefined);
             }
         }]
     },
@@ -426,6 +432,8 @@ require("../modelInit")(dbPath).then((model) => {
                 assert.equal(res.body.firstname, "testR");
                 assert.equal(res.body.username, "test5");
                 assert.equal(res.body.password, undefined);
+                assert.equal(res.body.createdAt, undefined);
+                assert.equal(res.body.updatedAt, undefined);
                 assert.equal(typeof res.body.token, "string");
                 token = res.body.token;
             }

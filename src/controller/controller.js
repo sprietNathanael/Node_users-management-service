@@ -30,6 +30,8 @@ class Controller {
             for (let user of users) {
                 let userInter = Object.assign(user.get());
                 delete userInter.password;
+                delete userInter.createdAt;
+                delete userInter.updatedAt;
                 usersToSend.push(userInter);
             }
             return usersToSend;
@@ -50,6 +52,8 @@ class Controller {
             if(user !== null){
                 userInter = Object.assign(user.get());
                 delete userInter.password;
+                delete userInter.createdAt;
+                delete userInter.updatedAt;
             }
             return userInter;
         });
@@ -92,6 +96,8 @@ class Controller {
                 if(user !== null){
                     userInter = Object.assign(user.get());
                     delete userInter.password;
+                    delete userInter.createdAt;
+                    delete userInter.updatedAt;
                 }
                 return userInter;
             }).catch((error) => {
@@ -157,6 +163,8 @@ class Controller {
                         if(user !== null){
                             userInter = Object.assign(user.get());
                             delete userInter.password;
+                            delete userInter.createdAt;
+                            delete userInter.updatedAt;
                         }
                         return userInter;
                     }).catch((error) => {
@@ -237,6 +245,8 @@ class Controller {
                         token: token
                     });
                     delete userToSend.password;
+                    delete userToSend.createdAt;
+                    delete userToSend.updatedAt;
                     let userToReturn = Object.assign(user, {
                         token: token
                     });
