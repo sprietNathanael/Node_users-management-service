@@ -46,10 +46,12 @@ require("../modelInit")(dbPath).then((model) => {
     let server = require('http').Server(app);
 
 
-    const requestsToTest = [{
-        description: "GET /users",
-        function: request(app).get,
-        tests: [{
+    const requestsToTest = [
+        //-------------------------- GET /users ---------------------
+        {
+            description: "GET /users",
+            function: request(app).get,
+            tests: [{
             route: "/users",
             description: "Response should be 200 with users list",
             code: 200,
@@ -60,7 +62,9 @@ require("../modelInit")(dbPath).then((model) => {
                 assert(res.body[0].username, "test");
             }
         }]
-    }, {
+    },
+    //-------------------------- GET /users:id ---------------------
+    {
         description: "GET /users:id",
         function: request(app).get,
         tests: [{
@@ -83,7 +87,9 @@ require("../modelInit")(dbPath).then((model) => {
                 assert(res.body.username, "test");
             }
         }, ]
-    }, {
+    },
+    //-------------------------- POST /users ---------------------
+    {
         description: "POST /users",
         function: request(app).post,
         tests: [{
@@ -203,7 +209,9 @@ require("../modelInit")(dbPath).then((model) => {
                 assert(res.body.password, "testtest2");
             }
         }]
-    }, {
+    },
+    //-------------------------- PUT /users:id ---------------------
+     {
         description: "PUT /users:id",
         function: request(app).put,
         tests: [{
@@ -355,7 +363,9 @@ require("../modelInit")(dbPath).then((model) => {
                 assert(res.body.password, "testtest5");
             }
         }]
-    },{
+    },
+    //-------------------------- POST /login ---------------------
+    {
         description: "POST /login",
         function: request(app).post,
         tests: [{
@@ -419,7 +429,9 @@ require("../modelInit")(dbPath).then((model) => {
                 token = res.body.token;
             }
         }]
-    },{
+    },
+    //-------------------------- POST /tryToken ---------------------
+    {
         description: "POST /tryToken",
         function: request(app).post,
         tests: [{
@@ -447,7 +459,7 @@ require("../modelInit")(dbPath).then((model) => {
                 token: "testtest"
             },
             description: "Response should be 404 if the user does not exists",
-            code: 404,
+            code: 401,
             format: "application/text"
         },{
             route: "/tryToken",
@@ -480,10 +492,12 @@ require("../modelInit")(dbPath).then((model) => {
                 token: notExistingToken
             },
             description: "Response should be 404 if the token does not exists",
-            code: 404,
+            code: 401,
             format: "application/text"
         }]
-    },{
+    },
+    //-------------------------- POST /logout ---------------------
+    {
         description: "POST /logout",
         function: request(app).post,
         tests: [{
@@ -523,7 +537,9 @@ require("../modelInit")(dbPath).then((model) => {
             code: 404,
             format: "application/text"
         }]
-    },{
+    },
+    //-------------------------- DELETE /users:id ---------------------
+    {
         description: "DELETE /users/:id",
         function: request(app).delete,
         tests: [{
@@ -542,7 +558,9 @@ require("../modelInit")(dbPath).then((model) => {
             code: 200,
             format: "application/text"
         }]
-    }, {
+    },
+    //-------------------------- GET /test ---------------------
+    {
         description: "GET /test",
         function: request(app).get,
         tests: [{
